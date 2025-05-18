@@ -1,0 +1,35 @@
+﻿<html>
+<head>
+    <!-- ... other head content ... -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="card w-100">
+        <div class="card-header">
+            <h1>BHomes Attendance Module</h1>
+        </div>
+        <div class="card-body text-center">
+            <form method="post" enctype="multipart/form-data" action="/Home/MainFunction">
+                <label for="myfile">Select a file:</label>
+                <input type="file" id="myfile" name="myfile" accept=".mdb"><br><br>
+                <input type="submit" value="Prosess">
+            </form>
+        </div>
+    </div>
+    
+    <!-- ... your body content ... -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        $(function () {
+            var msg = '@TempData["UploadSuccess"]';
+            if (msg && msg !== "False") {
+                toastr.success(msg);
+            } else if (msg === "False") {
+                toastr.error("Something Went Wrong");
+            }
+            // If msg is null or empty, do nothing
+        });
+    </script>
+</body>
+</html>
