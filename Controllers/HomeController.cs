@@ -2,6 +2,10 @@ using System.Diagnostics;
 using BHomesAttendance.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Data.OleDb;
+using System.Runtime.InteropServices;
+
 
 namespace BHomesAttendance.Controllers
 {
@@ -41,19 +45,70 @@ namespace BHomesAttendance.Controllers
         {
             try
             {
-                if (Path.GetExtension(myfile.FileName) == ".mdb")
+                if (Path.GetExtension(myfile.FileName).Equals(".mdb", StringComparison.OrdinalIgnoreCase))
                 {
-                    string a = myfile.FileName;
-                    a = "Bhome101.mdb";
-                    // Example: Save the file to wwwroot/uploads
-                    var filePath = Path.Combine("wwwroot/uploads", a);
+                    string fileName = "Bhome101.mdb";
+                    var directoryPath = Path.Combine("wwwroot", "uploads");
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+                    var filePath = Path.Combine(directoryPath, fileName);
                     using (var stream = System.IO.File.Create(filePath))
                     {
                         await myfile.CopyToAsync(stream);
                     }
                     TempData["UploadSuccess"] = "File uploaded";
+
+                    // Read tables from the uploaded .mdb file
+                    string connStr = $@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={filePath};Persist Security Info=False;";
+                    var userInfoList = new List<Dictionary<string, object>>();
+                    var checkInOutList = new List<Dictionary<string, object>>();
+
+                    using (var conn = new OleDbConnection(connStr))
+                    {
+                        conn.Open();
+
+                        // Read USERINFO table
+                        using (var cmd = new OleDbCommand("SELECT USERID,BADGENUMBER FROM USERINFO", conn))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var row = new Dictionary<string, object>();
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                    row[reader.GetName(i)] = reader.GetValue(i);
+                                userInfoList.Add(row);
+                            }
+                        }
+
+                        // Read CHECKINOUT table
+                        using (var cmd = new OleDbCommand("SELECT USERID,CHECKTIME,sn FROM CHECKINOUT", conn))
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var row = new Dictionary<string, object>();
+                                for (int i = 0; i < reader.FieldCount; i++)
+                                    row[reader.GetName(i)] = reader.GetValue(i);
+                                checkInOutList.Add(row);
+                            }
+                        }
+                    }
+
+                    var attendanceRows = (from u in userInfoList
+                                          join c in checkInOutList
+                                          on u["USERID"] equals c["USERID"]
+                                          select new
+                                          {
+                                              fp_id = u["BADGENUMBER"],
+                                              io_time = c["CHECKTIME"],
+                                              fp_date = ((DateTime)c["CHECKTIME"]).ToString("M/d/yyyy"),
+                                              fp_time = ((DateTime)c["CHECKTIME"]).ToString("h:mm:ss tt"),
+                                          }).ToList();
+                    //Adding to 
+
                 }
-                // Redirect or return a view as needed
                 return RedirectToAction("MainPage");
             }
             catch
