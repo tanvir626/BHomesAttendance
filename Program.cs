@@ -1,4 +1,4 @@
-using BHomesAttendance.Data;
+﻿using BHomesAttendance.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,15 +16,15 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+/// This branch will run when ASPNETCORE_ENVIRONMENT is “Development”
 if (app.Environment.IsDevelopment())
 {
-    app.UseMigrationsEndPoint();
+    app.UseDeveloperExceptionPage();
 }
 else
 {
+    // Production‑safe error handler
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -37,7 +37,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=MainPage}/{id?}")
+    pattern: "{controller=./Identity/Account}/{action=Login}/{id?}")
     .WithStaticAssets();
 
 app.MapRazorPages()

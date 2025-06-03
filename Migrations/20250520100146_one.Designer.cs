@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace BHomesAttendance.Data.Migrations
+namespace BHomesAttendance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518035345_initial")]
-    partial class initial
+    [Migration("20250520100146_one")]
+    partial class one
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,35 @@ namespace BHomesAttendance.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("BHomesAttendance.Models.Tbl_Employee_Attendance", b =>
+                {
+                    b.Property<int>("AttID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttID"));
+
+                    b.Property<DateTime?>("fp_date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("fp_id")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("fp_time")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("io_time")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("AttID");
+
+                    b.ToTable("Tbl_Employee_Attendance");
+                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {

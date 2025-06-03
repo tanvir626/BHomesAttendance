@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using BHomesAttendance.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace BHomesAttendance.Data
@@ -9,5 +10,7 @@ namespace BHomesAttendance.Data
             : base(options)
         {
         }
+        public DbSet<Tbl_Employee_Attendance> Tbl_Employee_Attendance { get; set; }
+
     }
 }
